@@ -94,6 +94,26 @@ export const listTasks = async (req: AuthRequest, res: Response) => {
 
     return res.json(tasks);
 };
+/**
+ * @swagger
+ * /tasks:
+ *   get:
+ *     summary: Listar tareas con filtros
+ *     tags: [Tasks]
+ *     parameters:
+ *       - in: query
+ *         name: projectId
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Lista de tareas
+ */
+
 
 // Obtener una tarea
 export const getTask = async (req: AuthRequest, res: Response) => {
@@ -139,6 +159,20 @@ export const updateTask = async (req: AuthRequest, res: Response) => {
 
     return res.json(task);
 };
+/**
+ * @swagger
+ * /tasks/{id}:
+ *   put:
+ *     summary: Actualizar tarea
+ *     tags: [Tasks]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *     responses:
+ *       200:
+ *         description: Tarea actualizada
+ */
+
 
 // Eliminar tarea
 export const deleteTask = async (req: AuthRequest, res: Response) => {
@@ -157,3 +191,16 @@ export const deleteTask = async (req: AuthRequest, res: Response) => {
 
     return res.status(204).send();
 };
+/**
+ * @swagger
+ * /tasks/{id}:
+ *   delete:
+ *     summary: Eliminar tarea
+ *     tags: [Tasks]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *     responses:
+ *       204:
+ *         description: Eliminada correctamente
+ */

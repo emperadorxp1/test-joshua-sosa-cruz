@@ -55,6 +55,17 @@ export const listProjects = async (req: AuthRequest, res: Response) => {
         }
     });
 };
+/**
+ * @swagger
+ * /projects:
+ *   get:
+ *     summary: Listar proyectos del usuario
+ *     tags: [Projects]
+ *     responses:
+ *       200:
+ *         description: Lista de proyectos
+ */
+
 
 // Obtener detalle de un proyecto
 export const getProject = async (req: AuthRequest, res: Response) => {
@@ -103,6 +114,23 @@ export const updateProject = async (req: AuthRequest, res: Response) => {
 
     return res.json(project);
 };
+/**
+ * @swagger
+ * /projects/{id}:
+ *   put:
+ *     summary: Actualizar proyecto
+ *     tags: [Projects]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Proyecto actualizado
+ */
+
 
 // Eliminar proyecto (solo owner)
 export const deleteProject = async (req: AuthRequest, res: Response) => {
