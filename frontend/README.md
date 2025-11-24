@@ -1,41 +1,73 @@
-# Frontend - React App
+# React + TypeScript + Vite
 
-Este directorio contendrá tu implementación del frontend de la aplicación.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Stack Requerido
+Currently, two official plugins are available:
 
-- **Framework**: React v18+
-- **Lenguaje**: TypeScript o JS
-- **Routing**: React Router v6
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Librerías Sugeridas (Opcionales)
+## React Compiler
 
-Puedes usar las librerías que consideres apropiadas. Algunas opciones comunes:
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-### Build Tool
-- **Vite** (recomendado): `npm create vite@latest`
-- **Create React App**: `npx create-react-app --template typescript`
+## Expanding the ESLint configuration
 
-### Estado Global
-- `zustand`, `@reduxjs/toolkit`, `react-redux`, `jotai`, `Context API`
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-### HTTP Client
-- `axios`, `fetch` (nativo)
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-### Estilos
-- **Recomendado**: `tailwindcss`
-- Alternativas: `styled-components`, `@emotion/react`, `sass`, CSS Modules
-- Librerías de UI complementarias: `@mui/material`, `antd`, `chakra-ui`, `shadcn/ui`
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-### Formularios y Validación
-- `react-hook-form`, `formik`, `yup`, `zod`
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
 
-### UI/UX
-- `react-toastify`, `react-hot-toast`, `react-icons`, `framer-motion`
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-### Testing
-- `@testing-library/react`, `vitest`, `jest`
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-## Tu Implementación
-
-Documenta tu arquitectura, decisiones técnicas y estructura en el archivo `../TECHNICAL_DECISIONS.md`.
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
