@@ -2,6 +2,7 @@ import { Response } from "express";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import { Project } from "../../models/project.model";
 import { User } from "../../models/user.model";
+import { Task } from "../../models/task.model";
 
 // Crear proyecto
 export const createProject = async (req: AuthRequest, res: Response) => {
@@ -115,8 +116,13 @@ export const deleteProject = async (req: AuthRequest, res: Response) => {
     }
 
     if (project.owner.toString() !== userId) {
-        return res.status(403).json({ message: "Solo el creador puede eliminar el proyecto" });
+        return res
+            .status(403)
+            .json({ message: "Solo el creador puede eliminar el proyecto" });
     }
+
+    // 🔹 Extra: eliminar también las tareas del proyecto
+    await Task.deleteMany({ project: project._id });
 
     await project.deleteOne();
     return res.status(204).send();
