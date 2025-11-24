@@ -3,6 +3,9 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import authRoutes from "./modules/auth/auth.routes";
+import projectRoutes from "./modules/projects/project.routes";
+import dashboardRoutes from "./modules/dashboard/dashboard.routes";
+import taskRoutes from "./modules/tasks/task.routes";
 import { errorHandler } from "./middleware/error.middleware";
 import { swaggerUi, swaggerSpec } from "./docs/swagger";
 
@@ -15,6 +18,9 @@ app.use(morgan("dev"));
 
 // Rutas
 app.use("/api/auth", authRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // Swagger docs
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
