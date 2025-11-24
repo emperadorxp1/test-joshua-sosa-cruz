@@ -9,15 +9,6 @@ interface Project {
     description?: string;
 }
 
-interface ProjectsResponse {
-    data: Project[];
-    meta: {
-        page: number;
-        limit: number;
-        total: number;
-    };
-}
-
 export const ProjectsPage = () => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [name, setName] = useState("");
@@ -25,7 +16,7 @@ export const ProjectsPage = () => {
     const [loading, setLoading] = useState(false);
 
     const fetchProjects = async () => {
-        const { data } = await api.get<ProjectsResponse>("/projects");
+        const { data } = await api.get("/projects");
         setProjects(data.data);
     };
 
@@ -47,43 +38,66 @@ export const ProjectsPage = () => {
         }
     };
 
+    const handleEditProject = async (project: Project) => {
+        const newName = window.prompt(
+            "Nuevo nombre del proyecto:",
+            project.name
+        );
+        if (!newName || !newName.trim()) return;
+
+        const newDescription = window.prompt(
+            "Nueva descripción (opcional):",
+            project.description || ""
+        );
+
+        await api.put(`/projects/${project._id}`, {
+            name: newName.trim(),
+            description: newDescription ?? "",
+        });
+
+        fetchProjects();
+    };
+
+    const handleDeleteProject = async (project: Project) => {
+        const confirmed = window.confirm(
+            `¿Seguro que deseas eliminar el proyecto "${project.name}"?`
+        );
+        if (!confirmed) return;
+
+        await api.delete(`/projects/${project._id}`);
+        fetchProjects();
+    };
+
     return (
         <div className="space-y-8">
-            {/* Encabezado */}
-            <div className="flex flex-col gap-2">
-                <h2 className="text-2xl font-semibold text-slate-900">
-                    Mis proyectos
-                </h2>
-                <p className="text-sm text-slate-500 max-w-xl">
-                    Crea y administra tus proyectos. Desde aquí podrás gestionar tareas,
-                    colaboradores y ver el avance general en el dashboard.
+            <div>
+                <h1 className="text-2xl font-semibold text-slate-900">Mis proyectos</h1>
+                <p className="text-sm text-slate-500 mt-1">
+                    Crea y gestiona tus proyectos. Accede a sus tareas y colaboradores.
                 </p>
             </div>
 
-            {/* Formulario de creación */}
+            {/* Crear proyecto */}
             <form
                 onSubmit={handleCreate}
-                className="bg-white/90 border border-slate-200 rounded-2xl shadow-sm px-4 py-4 md:px-5 md:py-5 flex flex-col md:flex-row gap-3 items-start md:items-end"
+                className="bg-white shadow-sm border border-slate-200 rounded-xl p-5 space-y-3"
             >
-                <div className="flex-1 w-full space-y-2">
-                    <label className="text-xs font-medium text-slate-500">
-                        Nombre del proyecto
-                    </label>
+                <div>
+                    <label className="text-xs text-slate-600">Nombre del proyecto</label>
                     <input
-                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                        placeholder="Ej. Plataforma interna, App de tareas, CRM..."
+                        className="w-full border rounded-lg px-3 py-2 text-sm bg-slate-50"
+                        placeholder="Ej: Plataforma de tareas internas"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        required
                     />
                 </div>
 
-                <div className="flex-1 w-full space-y-2">
-                    <label className="text-xs font-medium text-slate-500">
-                        Descripción (opcional)
-                    </label>
+                <div>
+                    <label className="text-xs text-slate-600">Descripción (opcional)</label>
                     <input
-                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                        placeholder="Breve contexto para el equipo"
+                        className="w-full border rounded-lg px-3 py-2 text-sm bg-slate-50"
+                        placeholder="Descripción breve del proyecto"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                     />
@@ -91,53 +105,55 @@ export const ProjectsPage = () => {
 
                 <button
                     disabled={loading}
-                    className="inline-flex items-center justify-center rounded-xl bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700 disabled:opacity-50"
                 >
-                    {loading ? "Creando..." : "Crear"}
+                    {loading ? "Creando..." : "Crear proyecto"}
                 </button>
             </form>
 
             {/* Lista de proyectos */}
-            <div className="space-y-4">
-                <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                    Proyectos recientes
-                </h3>
+            <div className="grid gap-4 md:grid-cols-2">
+                {projects.map((project) => (
+                    <div
+                        key={project._id}
+                        className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition"
+                    >
+                        <div className="flex flex-col space-y-1">
+                            <h2 className="text-lg font-semibold">{project.name}</h2>
+                            <p className="text-sm text-slate-500">{project.description}</p>
+                        </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                    {projects.map((p) => (
-                        <div
-                            key={p._id}
-                            className="group bg-white/90 border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-sky-200 transition-all duration-150 flex flex-col justify-between"
-                        >
-                            <div className="space-y-1.5">
-                                <h4 className="font-semibold text-slate-900 group-hover:text-sky-700">
-                                    {p.name}
-                                </h4>
-                                {p.description && (
-                                    <p className="text-sm text-slate-500 line-clamp-3">
-                                        {p.description}
-                                    </p>
-                                )}
-                            </div>
-                            <div className="mt-3">
-                                <Link
-                                    to={`/projects/${p._id}/tasks`}
-                                    className="inline-flex items-center text-xs font-medium text-sky-600 hover:text-sky-700"
+                        <div className="flex items-center justify-between mt-4">
+                            <Link
+                                to={`/projects/${project._id}/tasks`}
+                                className="text-sky-600 text-sm hover:underline"
+                            >
+                                Ver tareas
+                            </Link>
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => handleEditProject(project)}
+                                    className="px-3 py-1 text-xs border rounded-full hover:bg-slate-100"
                                 >
-                                    Ver tareas
-                                    <span className="ml-1 text-[11px]">↗</span>
-                                </Link>
+                                    Editar
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteProject(project)}
+                                    className="px-3 py-1 text-xs bg-red-50 text-red-600 border border-red-200 rounded-full hover:bg-red-100"
+                                >
+                                    Eliminar
+                                </button>
                             </div>
                         </div>
-                    ))}
+                    </div>
+                ))}
 
-                    {projects.length === 0 && (
-                        <div className="col-span-full bg-white/80 border border-dashed border-slate-300 rounded-2xl p-6 text-center text-sm text-slate-500">
-                            Aún no tienes proyectos creados. Usa el formulario superior para
-                            crear el primero.
-                        </div>
-                    )}
-                </div>
+                {projects.length === 0 && (
+                    <div className="text-slate-600 text-sm col-span-full text-center p-6 bg-white border border-dashed rounded-xl">
+                        No tienes proyectos creados aún.
+                    </div>
+                )}
             </div>
         </div>
     );
